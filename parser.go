@@ -143,11 +143,12 @@ func (p *parser) parse(expression string) error {
 					} else if expr[m] == '-' {
 						isRange = true
 						num, err := strconv.ParseInt(expr[n:m], 10, 16)
-						if err == nil {
-							p.buf[pos] = int16(num)
-							pos++
+						if err != nil {
+							return err
 						}
+						p.buf[pos] = int16(num)
 						n = m + 1
+						pos++
 					}
 					m++
 				}
