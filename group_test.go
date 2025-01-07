@@ -2,6 +2,7 @@ package gojob
 
 import (
 	"context"
+	"errors"
 	"log"
 	"testing"
 	"time"
@@ -19,7 +20,7 @@ func TestGroup_Schedule(t *testing.T) {
 
 	job2 := NewJob("test.group.job.2", func(args ...any) error {
 		t.Log("run test.group.job.2: " + time.Now().Format(time.DateTime))
-		return nil
+		return errors.New("test error required")
 	}, repeatPeriod*2)
 	job2.SetSortOrder(1)
 
@@ -39,4 +40,9 @@ func TestGroup_Schedule(t *testing.T) {
 	logger := log.Default()
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*16)
 	g.Schedule(logger, ctx)
+
+	g.ResetJobs()
+	if len(g.jobs) > 0 {
+		t.Fatal("Jobs must cleaned")
+	}
 }

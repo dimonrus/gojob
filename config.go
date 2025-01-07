@@ -74,6 +74,13 @@ func (t TimePart) Validate() error {
 			}
 		}
 	}
+	if len(t.WeekOfMonth) > 0 {
+		for i := range t.WeekOfMonth {
+			if t.WeekOfMonth[i] > 5 {
+				return errors.New("week of year has a range between 1 and 5")
+			}
+		}
+	}
 	if len(t.WeekOfYear) > 0 {
 		for i := range t.WeekOfYear {
 			if t.WeekOfYear[i] > 52 {
@@ -89,32 +96,4 @@ func (t TimePart) Validate() error {
 		}
 	}
 	return nil
-}
-
-// Эта история про повторять
-// минимальное число - это и есть период?
-// Во вторник с 14:00:45 по четверг до 00:00:59, в первые 2 недели каждого месяца, повторять каждые 7 секунд
-// > - /7 * 14-00 2,3,4 - 1,2 - *
-// * * * * * * * * *
-// 1 2 3 4 5 6 7 8 9
-
-// ParseScheduleExpression prepare time struct
-func ParseScheduleExpression(expression string) TimePart {
-	var i, j int
-	var t TimePart
-	for i < len(expression) {
-		switch true {
-		case expression[i] == '-':
-		case expression[i] == ' ':
-
-			j++
-		case expression[i] == '/':
-		case expression[i] == ',':
-		case expression[i] == '*':
-		case '0' <= expression[i] && expression[i] <= '9':
-			_ = expression[i]
-		}
-		i++
-	}
-	return t
 }

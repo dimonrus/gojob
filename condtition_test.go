@@ -26,23 +26,24 @@ func TestCondition(t *testing.T) {
 			func() bool {
 				return true
 			},
+		)
+		cond = cond.AddExpression(
 			func() bool {
 				return true
-			},
-		)
+			})
 		if !cond.IsTrue() {
 			t.Fatal("must be true")
 		}
 	})
 	t.Run("simple_double_false", func(t *testing.T) {
-		cond := NewCondition(OperatorAND,
+		cond := NewCondition(OperatorAND)
+		cond = cond.SetExpression(
 			func() bool {
 				return false
 			},
 			func() bool {
 				return false
-			},
-		)
+			})
 		if cond.IsTrue() {
 			t.Fatal("must be false")
 		}
@@ -90,7 +91,7 @@ func TestCondition(t *testing.T) {
 		}
 	})
 	t.Run("simple_or_double_false_2", func(t *testing.T) {
-		cond := NewCondition(OperatorOR,
+		cond := NewCondition(OperatorAND,
 			func() bool {
 				return false
 			},
@@ -98,6 +99,7 @@ func TestCondition(t *testing.T) {
 				return false
 			},
 		)
+		cond.SetOperator(OperatorOR)
 		if cond.IsTrue() {
 			t.Fatal("must be false")
 		}

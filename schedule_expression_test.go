@@ -38,6 +38,13 @@ func TestScheduleExpression_Validate(t *testing.T) {
 			t.Fatal("must be: 'count of expression parts must be 9. current count is: 8'")
 		}
 	})
+	t.Run("zero_length_parts", func(t *testing.T) {
+		exp := ScheduleExpression("        ")
+		err := exp.Validate()
+		if err == nil {
+			t.Fatal("must be: 'part 1 can't have a 0 length string'")
+		}
+	})
 	t.Run("double_special_nok", func(t *testing.T) {
 		exp := ScheduleExpression("1 -- * 1-20 * 3,5 - * */3-6")
 		err := exp.Validate()

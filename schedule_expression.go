@@ -21,7 +21,7 @@ func (s ScheduleExpression) Validate() error {
 	}
 	for i := range parts {
 		if len(parts[i]) == 0 {
-			return errors.New(fmt.Sprintf("part %v can't have a 0 lenght string", i+1))
+			return errors.New(fmt.Sprintf("part %v can't have a 0 length string", i+1))
 		}
 		if parts[i][0] != '*' && parts[i][0] != '-' && (parts[i][0] < '0' || parts[i][0] > '9') {
 			return errors.New(fmt.Sprintf("part %v (%s) can't starts from %c", i+1, parts[i], parts[i][0]))
