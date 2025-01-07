@@ -7,7 +7,7 @@ import (
 
 const (
 	// TimePartLength Whole parser buffer length
-	TimePartLength = 1251
+	TimePartLength = 1252
 
 	PositionStartMillisecond = 0
 	PositionStartSecond      = 1000
@@ -17,7 +17,7 @@ const (
 	PositionStartDayOfMonth  = 1151
 	PositionStartWeekOfMonth = 1182
 	PositionStartWeekOfYear  = 1187
-	PositionStartMonth       = 1239
+	PositionStartMonth       = 1240
 )
 
 // parser struct

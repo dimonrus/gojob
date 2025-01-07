@@ -1,7 +1,10 @@
 package gojob
 
 import (
+	"context"
+	"log"
 	"testing"
+	"time"
 )
 
 func TestTimePart_Validate(t *testing.T) {
@@ -14,7 +17,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -31,7 +34,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -48,7 +51,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -65,7 +68,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -82,7 +85,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -99,7 +102,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 8},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -116,7 +119,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 32},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -133,7 +136,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 6},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -150,7 +153,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 53},
+			WeekOfYear:  []uint16{1, 54},
 			Month:       []uint16{1, 12},
 		}
 		e := td.Validate()
@@ -167,7 +170,7 @@ func TestTimePart_Validate(t *testing.T) {
 			DayOfWeek:   []uint16{1, 7},
 			DayOfMonth:  []uint16{1, 31},
 			WeekOfMonth: []uint16{1, 5},
-			WeekOfYear:  []uint16{1, 52},
+			WeekOfYear:  []uint16{1, 53},
 			Month:       []uint16{1, 13},
 		}
 		e := td.Validate()
@@ -175,4 +178,29 @@ func TestTimePart_Validate(t *testing.T) {
 			t.Fatal("must be Month invalid")
 		}
 	})
+}
+
+func TestTimePart_ToCondition(t *testing.T) {
+	exp := ScheduleExpression("* * * * * * * * *")
+	err := exp.Validate()
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := initParser()
+	err = p.parse(string(exp))
+	if err != nil {
+		t.Fatal(err)
+	}
+	tp := p.toTimePart()
+	job := NewJob("every.millisecond.with.500ms.repeat.duration", func(args ...any) error {
+		t.Log(time.Now().Unix(), time.Now().UnixMilli()%1000)
+		return nil
+	}, time.Millisecond*500)
+	job.SetCondition(tp.ToCondition())
+
+	g := NewGroup(time.Second, GroupModeConsistently)
+	g.AddJob(job)
+	logger := log.Default()
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*16)
+	g.Schedule(logger, ctx)
 }

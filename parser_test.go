@@ -38,8 +38,8 @@ func Test_parser_parse(t *testing.T) {
 		if len(tp.WeekOfMonth) != 5 {
 			t.Fatal("len of WeekOfMonth must be 5")
 		}
-		if len(tp.WeekOfYear) != 52 {
-			t.Fatal("len of WeekOfYear must be 52")
+		if len(tp.WeekOfYear) != 53 {
+			t.Fatal("len of WeekOfYear must be 53")
 		}
 		if len(tp.Month) != 12 {
 			t.Fatal("len of Month must be 12")
