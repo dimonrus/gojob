@@ -221,7 +221,7 @@ func Test_parser_parse(t *testing.T) {
 // pkg: github.com/dimonrus/gojob
 // cpu: Apple M2 Max
 // BenchmarkParser
-// BenchmarkParser-12    	  608630	      1925 ns/op	    2584 B/op	       9 allocs/op
+// BenchmarkParser-12    	 1401558	       857.8 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkParser(b *testing.B) {
 	p := initParser()
 	expression := "* * * * * * * * *"
