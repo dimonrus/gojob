@@ -92,15 +92,17 @@ func (p *parser) parse(expression string) error {
 	// j - sub expression start iterator
 	// k - position parts iterator, positions[k]
 	var i, j, k int
+	var isRange bool
 	for i < len(expression) {
-		if i == len(expression)-1 {
+		//if i == len(expression)-1 {
+		//	i++
+		//}
+		switch true {
+		case expression[i] == ' ':
 			i++
-		} else if expression[i] != ' ' {
-			i++
+			j = i
 			continue
-		}
-		switch expression[j:i] {
-		case "*":
+		case expression[i] == '*':
 			start := positions[k]
 			end := positions[k+1]
 			value := int16(0)
@@ -112,48 +114,36 @@ func (p *parser) parse(expression string) error {
 				p.buf[m] = value
 				value++
 			}
-			fallthrough
-		case "-":
 			k++
+		case expression[i] == '-':
+			if i == 0 || expression[i-1] == ' ' {
+				k++
+			}
 		default:
+			var next bool
 			pos := positions[k]
-			expr := expression[j:i]
-			if len(expr) > 1 && expr[0:2] == "*/" {
-
-			} else {
-				n, m := 0, 0
-				var isRange bool
-				for m < len(expr) {
-					if expr[m] == ',' {
-						num, err := strconv.ParseInt(expr[n:m], 10, 16)
-						if err != nil {
-							return err
+			for expression[i] != ' ' {
+				if expression[i] == ',' {
+					i++
+					j = i
+					continue
+				} else if expression[i] == '-' {
+					isRange = true
+					i++
+					j = i
+					continue
+				} else {
+					for '0' <= expression[i] && expression[i] <= '9' {
+						if i == len(expression)-1 {
+							i++
+							next = true
+							break
 						}
-						if isRange {
-							for l := p.buf[pos-1] + 1; l <= int16(num); l++ {
-								p.buf[pos] = l
-								pos++
-							}
-							isRange = false
-						} else {
-							p.buf[pos] = int16(num)
-							pos++
-						}
-						n = m + 1
-					} else if expr[m] == '-' {
-						isRange = true
-						num, err := strconv.ParseInt(expr[n:m], 10, 16)
-						if err != nil {
-							return err
-						}
-						p.buf[pos] = int16(num)
-						n = m + 1
-						pos++
+						i++
 					}
-					m++
 				}
-				if n < m {
-					num, err := strconv.ParseInt(expr[n:m], 10, 16)
+				if j < i {
+					num, err := strconv.ParseInt(expression[j:i], 10, 16)
 					if err != nil {
 						return err
 					}
@@ -168,6 +158,9 @@ func (p *parser) parse(expression string) error {
 						pos++
 					}
 				}
+				if next {
+					break
+				}
 			}
 			k++
 		}
@@ -176,41 +169,3 @@ func (p *parser) parse(expression string) error {
 	}
 	return nil
 }
-
-// var i, j int
-//	var numStart, numEnd int
-//	var isRange, isEach bool
-//	// > - */7,8,9-11,16-50,55 * 14-00 2,3,4 - 1,2 - *
-//	for i < len(expression) {
-//		switch true {
-//		case expression[i] == ' ':
-//			if isRange {
-//				isRange = false
-//			}
-//			if isEach {
-//				isEach = false
-//			}
-//			j++
-//		case expression[i] == '-':
-//			isRange = true
-//		case expression[i] == '/':
-//			isEach = true
-//			numStart = i
-//		case expression[i] == ',':
-//		case expression[i] == '*':
-//			start := positions[j]
-//			end := positions[j+1]
-//			value := int16(0)
-//			// see TimePart, until day of week start value is 0
-//			if j > 3 {
-//				value = 1
-//			}
-//			for k := start; k < end; k++ {
-//				p.buf[k] = value
-//				value++
-//			}
-//		case '0' <= expression[i] && expression[i] <= '9':
-//			numEnd = i
-//		}
-//		i++
-//	}
