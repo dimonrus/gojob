@@ -8,8 +8,12 @@ func Test_parser_parse(t *testing.T) {
 	t.Run("all_stars", func(t *testing.T) {
 		expression := "* * * * * * * * *"
 		p := initParser()
-		tp := p.parse(expression)
-		err := tp.Validate()
+		err := p.parse(expression)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp := p.toTimePart()
+		err = tp.Validate()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -44,8 +48,12 @@ func Test_parser_parse(t *testing.T) {
 	t.Run("all_minus", func(t *testing.T) {
 		expression := "- - - - - - - - -"
 		p := initParser()
-		tp := p.parse(expression)
-		err := tp.Validate()
+		err := p.parse(expression)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp := p.toTimePart()
+		err = tp.Validate()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -80,8 +88,12 @@ func Test_parser_parse(t *testing.T) {
 	t.Run("only_numbers", func(t *testing.T) {
 		expression := "11 22 33 14 5 26 2 8 9"
 		p := initParser()
-		tp := p.parse(expression)
-		err := tp.Validate()
+		err := p.parse(expression)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp := p.toTimePart()
+		err = tp.Validate()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -116,8 +128,12 @@ func Test_parser_parse(t *testing.T) {
 	t.Run("numbers_with_coma_stars_minus", func(t *testing.T) {
 		expression := "- * 10,20,30,40,50,0 - * - 1,2,3 - *"
 		p := initParser()
-		tp := p.parse(expression)
-		err := tp.Validate()
+		err := p.parse(expression)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp := p.toTimePart()
+		err = tp.Validate()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -152,8 +168,12 @@ func Test_parser_parse(t *testing.T) {
 	t.Run("range", func(t *testing.T) {
 		expression := "650-700 * 30-40,45-59 - - - - - 3,4-6,12"
 		p := initParser()
-		tp := p.parse(expression)
-		err := tp.Validate()
+		err := p.parse(expression)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp := p.toTimePart()
+		err = tp.Validate()
 		if err != nil {
 			t.Fatal(err)
 		}

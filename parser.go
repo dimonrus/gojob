@@ -84,7 +84,7 @@ func (p *parser) toTimePart() TimePart {
 }
 
 // parse cron expression
-func (p *parser) parse(expression string) TimePart {
+func (p *parser) parse(expression string) error {
 	p.m.Lock()
 	defer p.m.Unlock()
 	p.reset()
@@ -125,21 +125,19 @@ func (p *parser) parse(expression string) TimePart {
 				var isRange bool
 				for m < len(expr) {
 					if expr[m] == ',' {
+						num, err := strconv.ParseInt(expr[n:m], 10, 16)
+						if err != nil {
+							return err
+						}
 						if isRange {
-							num, err := strconv.ParseInt(expr[n:m], 10, 16)
-							if err == nil {
-								for l := p.buf[pos-1] + 1; l <= int16(num); l++ {
-									p.buf[pos] = l
-									pos++
-								}
+							for l := p.buf[pos-1] + 1; l <= int16(num); l++ {
+								p.buf[pos] = l
+								pos++
 							}
 							isRange = false
 						} else {
-							num, err := strconv.ParseInt(expr[n:m], 10, 16)
-							if err == nil {
-								p.buf[pos] = int16(num)
-								pos++
-							}
+							p.buf[pos] = int16(num)
+							pos++
 						}
 						n = m + 1
 					} else if expr[m] == '-' {
@@ -154,21 +152,19 @@ func (p *parser) parse(expression string) TimePart {
 					m++
 				}
 				if n < m {
+					num, err := strconv.ParseInt(expr[n:m], 10, 16)
+					if err != nil {
+						return err
+					}
 					if isRange {
-						num, err := strconv.ParseInt(expr[n:m], 10, 16)
-						if err == nil {
-							for l := p.buf[pos-1] + 1; l <= int16(num); l++ {
-								p.buf[pos] = l
-								pos++
-							}
+						for l := p.buf[pos-1] + 1; l <= int16(num); l++ {
+							p.buf[pos] = l
+							pos++
 						}
 						isRange = false
 					} else {
-						num, err := strconv.ParseInt(expr[n:m], 10, 16)
-						if err == nil {
-							p.buf[pos] = int16(num)
-							pos++
-						}
+						p.buf[pos] = int16(num)
+						pos++
 					}
 				}
 			}
@@ -177,8 +173,7 @@ func (p *parser) parse(expression string) TimePart {
 		i++
 		j = i
 	}
-	// TODO perform optimisation
-	return p.toTimePart()
+	return nil
 }
 
 // var i, j int
