@@ -55,32 +55,84 @@ func (p *parser) reset() {
 	}
 }
 
-// extract values form start to end
-func (p *parser) extract(start, length int) []uint16 {
-	var result = make([]uint16, length)
-	var j = 0
-	for i := start; i < start+length; i++ {
-		if p.buf[i] != -1 {
-			result[j] = uint16(p.buf[i])
+// transform parser buffer to time part struct
+func (p *parser) toTimePart() TimePart {
+	tp := TimePart{}
+	buf := make([]int16, TimePartLength)
+	copy(buf, p.buf)
+	var j int
+	// Millisecond
+	for i := PositionStartMillisecond; i < PositionStartSecond; i++ {
+		if buf[i] > -1 {
 			j++
 		}
 	}
-	return result[:j]
-}
-
-// transform parser buffer to time part struct
-func (p *parser) toTimePart() TimePart {
-	return TimePart{
-		Millisecond: p.extract(PositionStartMillisecond, PositionStartSecond-PositionStartMillisecond),
-		Second:      p.extract(PositionStartSecond, PositionStartMinute-PositionStartSecond),
-		Minute:      p.extract(PositionStartMinute, PositionStartHour-PositionStartMinute),
-		Hour:        p.extract(PositionStartHour, PositionStartDayOfWeek-PositionStartHour),
-		DayOfWeek:   p.extract(PositionStartDayOfWeek, PositionStartDayOfMonth-PositionStartDayOfWeek),
-		DayOfMonth:  p.extract(PositionStartDayOfMonth, PositionStartWeekOfMonth-PositionStartDayOfMonth),
-		WeekOfMonth: p.extract(PositionStartWeekOfMonth, PositionStartWeekOfYear-PositionStartWeekOfMonth),
-		WeekOfYear:  p.extract(PositionStartWeekOfYear, PositionStartMonth-PositionStartWeekOfYear),
-		Month:       p.extract(PositionStartMonth, TimePartLength-PositionStartMonth),
+	tp.Millisecond = buf[PositionStartMillisecond : PositionStartMillisecond+j]
+	j = 0
+	// Second
+	for i := PositionStartSecond; i < PositionStartMinute; i++ {
+		if buf[i] > -1 {
+			j++
+		}
 	}
+	tp.Second = buf[PositionStartSecond : PositionStartSecond+j]
+	j = 0
+	// Minute
+	for i := PositionStartMinute; i < PositionStartHour; i++ {
+		if buf[i] > -1 {
+			j++
+		}
+	}
+	tp.Minute = buf[PositionStartMinute : PositionStartMinute+j]
+	j = 0
+	// Hour
+	for i := PositionStartHour; i < PositionStartDayOfWeek; i++ {
+		if buf[i] > -1 {
+			j++
+		}
+	}
+	tp.Hour = buf[PositionStartHour : PositionStartHour+j]
+	j = 0
+	// DayOfWeek
+	for i := PositionStartDayOfWeek; i < PositionStartDayOfMonth; i++ {
+		if buf[i] > -1 {
+			j++
+		}
+	}
+	tp.DayOfWeek = buf[PositionStartDayOfWeek : PositionStartDayOfWeek+j]
+	j = 0
+	// DayOfMonth
+	for i := PositionStartDayOfMonth; i < PositionStartWeekOfMonth; i++ {
+		if buf[i] > -1 {
+			j++
+		}
+	}
+	tp.DayOfMonth = buf[PositionStartDayOfMonth : PositionStartDayOfMonth+j]
+	j = 0
+	// WeekOfMonth
+	for i := PositionStartWeekOfMonth; i < PositionStartWeekOfYear; i++ {
+		if buf[i] > -1 {
+			j++
+		}
+	}
+	tp.WeekOfMonth = buf[PositionStartWeekOfMonth : PositionStartWeekOfMonth+j]
+	j = 0
+	// WeekOfYear
+	for i := PositionStartWeekOfYear; i < PositionStartMonth; i++ {
+		if buf[i] > -1 {
+			j++
+		}
+	}
+	tp.WeekOfYear = buf[PositionStartWeekOfYear : PositionStartWeekOfYear+j]
+	j = 0
+	// Month
+	for i := PositionStartMonth; i < TimePartLength; i++ {
+		if buf[i] > -1 {
+			j++
+		}
+	}
+	tp.Month = buf[PositionStartMonth : PositionStartMonth+j]
+	return tp
 }
 
 // parse cron expression

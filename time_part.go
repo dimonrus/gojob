@@ -10,23 +10,23 @@ import (
 // len is 1252
 type TimePart struct {
 	// Possible value is 0-999
-	Millisecond []uint16 `yaml:"millisecond" json:"millisecond" valid:"range~0:999;"`
+	Millisecond []int16 `yaml:"millisecond" json:"millisecond" valid:"range~0:999;"`
 	// Possible value is 0-59
-	Second []uint16 `yaml:"second" json:"second" valid:"range~0:59;"`
+	Second []int16 `yaml:"second" json:"second" valid:"range~0:59;"`
 	// Possible value is 0-59
-	Minute []uint16 `yaml:"minute" json:"minute" valid:"range~0:59;"`
+	Minute []int16 `yaml:"minute" json:"minute" valid:"range~0:59;"`
 	// Possible value is 0-23
-	Hour []uint16 `yaml:"hour" json:"hour" valid:"range~0:23;"`
+	Hour []int16 `yaml:"hour" json:"hour" valid:"range~0:23;"`
 	// Possible value is 1-7
-	DayOfWeek []uint16 `yaml:"dayOfWeek" json:"dayOfWeek" valid:"range~1:7;"`
+	DayOfWeek []int16 `yaml:"dayOfWeek" json:"dayOfWeek" valid:"range~1:7;"`
 	// Possible value is 1-31
-	DayOfMonth []uint16 `yaml:"dayOfMont" json:"dayOfMont" valid:"range~1:31;"`
+	DayOfMonth []int16 `yaml:"dayOfMont" json:"dayOfMont" valid:"range~1:31;"`
 	// Possible value is 1-5
-	WeekOfMonth []uint16 `yaml:"weekOfMonth" json:"weekOfMonth" valid:"range~1:5;"`
+	WeekOfMonth []int16 `yaml:"weekOfMonth" json:"weekOfMonth" valid:"range~1:5;"`
 	// Possible value is 1-53
-	WeekOfYear []uint16 `yaml:"weekOfYear" json:"weekOfYear" valid:"range~1:53;"`
+	WeekOfYear []int16 `yaml:"weekOfYear" json:"weekOfYear" valid:"range~1:53;"`
 	// Possible value is 1-12
-	Month []uint16 `yaml:"month" json:"month" valid:"range~1:12;"`
+	Month []int16 `yaml:"month" json:"month" valid:"range~1:12;"`
 }
 
 // Validate check if values is incorrect
@@ -102,49 +102,49 @@ func (t TimePart) ToCondition() Condition {
 	cond := NewCondition(OperatorAND)
 	if len(t.Millisecond) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]uint16, uint16](t.Millisecond, uint16(time.Now().UnixMilli()%1000))
+			return slices.Contains[[]int16, int16](t.Millisecond, int16(time.Now().UnixMilli()%1000))
 		})
 	}
 	if len(t.Second) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]uint16, uint16](t.Second, uint16(time.Now().Second()))
+			return slices.Contains[[]int16, int16](t.Second, int16(time.Now().Second()))
 		})
 	}
 	if len(t.Minute) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]uint16, uint16](t.Minute, uint16(time.Now().Minute()))
+			return slices.Contains[[]int16, int16](t.Minute, int16(time.Now().Minute()))
 		})
 	}
 	if len(t.Hour) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]uint16, uint16](t.Hour, uint16(time.Now().Hour()))
+			return slices.Contains[[]int16, int16](t.Hour, int16(time.Now().Hour()))
 		})
 	}
 	if len(t.DayOfWeek) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]uint16, uint16](t.DayOfWeek, uint16(time.Now().Weekday()+1))
+			return slices.Contains[[]int16, int16](t.DayOfWeek, int16(time.Now().Weekday()+1))
 		})
 	}
 	if len(t.DayOfMonth) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]uint16, uint16](t.DayOfMonth, uint16(time.Now().Day()))
+			return slices.Contains[[]int16, int16](t.DayOfMonth, int16(time.Now().Day()))
 		})
 	}
 	if len(t.WeekOfMonth) > 0 {
 		cond = cond.AddExpression(func() bool {
 			day := time.Now().Day()
-			return slices.Contains[[]uint16, uint16](t.WeekOfMonth, uint16(day)/7+1)
+			return slices.Contains[[]int16, int16](t.WeekOfMonth, int16(day)/7+1)
 		})
 	}
 	if len(t.WeekOfYear) > 0 {
 		cond = cond.AddExpression(func() bool {
 			_, week := time.Now().ISOWeek()
-			return slices.Contains[[]uint16, uint16](t.WeekOfYear, uint16(week))
+			return slices.Contains[[]int16, int16](t.WeekOfYear, int16(week))
 		})
 	}
 	if len(t.Month) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]uint16, uint16](t.Month, uint16(time.Now().Month()))
+			return slices.Contains[[]int16, int16](t.Month, int16(time.Now().Month()))
 		})
 	}
 	return cond

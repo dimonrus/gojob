@@ -206,7 +206,7 @@ func Test_parser_parse(t *testing.T) {
 		}
 	})
 	t.Run("every.second.and.ever.5.minutes", func(t *testing.T) {
-		expression := "- * */5 - - - - - -"
+		expression := "- * */5,*/6 - - - - - -"
 		p := initParser()
 		err := p.parse(expression)
 		if err != nil {
@@ -223,7 +223,7 @@ func Test_parser_parse(t *testing.T) {
 		if len(tp.Second) != 60 {
 			t.Fatal("len of Second must be 60")
 		}
-		if len(tp.Minute) != 12 {
+		if len(tp.Minute) != 22 {
 			t.Fatal("len of Minute must be 26")
 		}
 		if len(tp.Hour) != 0 {
@@ -298,6 +298,30 @@ func BenchmarkParser(b *testing.B) {
 	expression := "* * * * * * * * *"
 	for i := 0; i < b.N; i++ {
 		p.parse(expression)
+	}
+	b.ReportAllocs()
+}
+
+// goos: darwin
+// goarch: arm64
+// pkg: github.com/dimonrus/gojob
+// cpu: Apple M2 Max
+// BenchmarkToTimePart
+// BenchmarkToTimePart-12    	 1833747	       638.0 ns/op	    2688 B/op	       1 allocs/op
+func BenchmarkToTimePart(b *testing.B) {
+	exp := ScheduleExpression("* * * * * * * * *")
+	err := exp.Validate()
+	if err != nil {
+		b.Fatal(err)
+	}
+	p := initParser()
+	err = p.parse(string(exp))
+	if err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < b.N; i++ {
+		tp := p.toTimePart()
+		_ = tp
 	}
 	b.ReportAllocs()
 }
