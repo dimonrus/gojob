@@ -18,13 +18,17 @@ func SetRepeatDuration(d time.Duration) {
 }
 
 // AddJob add job to default schedule
-func AddJob(name string, expression ScheduleExpression, callback JobCallback) error {
+func AddJob(name string, expression ScheduleExpression, callback JobCallback, condition ...Condition) error {
 	job := NewJob(name, callback, group.d)
 	tp, err := expression.Parse()
 	if err != nil {
 		return err
 	}
-	job.SetCondition(tp.ToCondition())
+	cond := tp.ToCondition()
+	if len(condition) > 0 {
+		cond = cond.Merge(OperatorAND, condition...)
+	}
+	job.SetCondition(cond)
 	group.AddJob(job)
 	return nil
 }

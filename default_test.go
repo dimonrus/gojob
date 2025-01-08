@@ -18,7 +18,9 @@ func TestSetRepeatDuration(t *testing.T) {
 		err = AddJob("test.goodbye.job", "- * - - - - - - -", func(args ...any) error {
 			t.Log("goodbye. This is test.goodbye.job")
 			return nil
-		})
+		}, NewCondition(OperatorAND, func() bool {
+			return true
+		}))
 		if err != nil {
 			t.Fatal(err)
 		}
