@@ -7,7 +7,7 @@ import (
 )
 
 // TimePart
-// len is 1251
+// len is 1252
 type TimePart struct {
 	// Possible value is 0-999
 	Millisecond []uint16 `yaml:"millisecond" json:"millisecond" valid:"range~0:999;"`

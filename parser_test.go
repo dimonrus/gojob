@@ -205,15 +205,86 @@ func Test_parser_parse(t *testing.T) {
 			t.Fatal("len of Month must be 5")
 		}
 	})
-
-	//t.Run("numbers_with_coma", func(t *testing.T) {
-	//	// > - */7,8,9-11,16-50,55 * 14-00 2,3,4 - 1,2 - *
-	//	expression := "- */7,8,9-11,16-50,55 * 14-00 2,3,4 - 1,2 - *"
-	//	p := initParser()
-	//	tp := p.parse(expression)
-	//	_ = tp
-	//})
-
+	t.Run("every.second.and.ever.5.minutes", func(t *testing.T) {
+		expression := "- * */5 - - - - - -"
+		p := initParser()
+		err := p.parse(expression)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp := p.toTimePart()
+		err = tp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(tp.Millisecond) != 0 {
+			t.Fatal("len of Millisecond must be 0")
+		}
+		if len(tp.Second) != 60 {
+			t.Fatal("len of Second must be 60")
+		}
+		if len(tp.Minute) != 12 {
+			t.Fatal("len of Minute must be 26")
+		}
+		if len(tp.Hour) != 0 {
+			t.Fatal("len of Hour must be 0")
+		}
+		if len(tp.DayOfWeek) != 0 {
+			t.Fatal("len of DayOfWeek must be 0")
+		}
+		if len(tp.DayOfMonth) != 0 {
+			t.Fatal("len of DayOfMonth must be 0")
+		}
+		if len(tp.WeekOfMonth) != 0 {
+			t.Fatal("len of WeekOfMonth must be 0")
+		}
+		if len(tp.WeekOfYear) != 0 {
+			t.Fatal("len of WeekOfYear must be 0")
+		}
+		if len(tp.Month) != 0 {
+			t.Fatal("len of Month must be 0")
+		}
+	})
+	t.Run("complex.every", func(t *testing.T) {
+		expression := "200-300/10,400/50,800 30/5 */5,6,7-10 - - - - 10/5 1-6/2"
+		p := initParser()
+		err := p.parse(expression)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp := p.toTimePart()
+		err = tp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(tp.Millisecond) != 0 {
+			t.Fatal("len of Millisecond must be 0")
+		}
+		if len(tp.Second) != 60 {
+			t.Fatal("len of Second must be 60")
+		}
+		if len(tp.Minute) != 12 {
+			t.Fatal("len of Minute must be 26")
+		}
+		if len(tp.Hour) != 0 {
+			t.Fatal("len of Hour must be 0")
+		}
+		if len(tp.DayOfWeek) != 0 {
+			t.Fatal("len of DayOfWeek must be 0")
+		}
+		if len(tp.DayOfMonth) != 0 {
+			t.Fatal("len of DayOfMonth must be 0")
+		}
+		if len(tp.WeekOfMonth) != 0 {
+			t.Fatal("len of WeekOfMonth must be 0")
+		}
+		if len(tp.WeekOfYear) != 0 {
+			t.Fatal("len of WeekOfYear must be 0")
+		}
+		if len(tp.Month) != 0 {
+			t.Fatal("len of Month must be 0")
+		}
+	})
 }
 
 // goos: darwin
@@ -221,7 +292,7 @@ func Test_parser_parse(t *testing.T) {
 // pkg: github.com/dimonrus/gojob
 // cpu: Apple M2 Max
 // BenchmarkParser
-// BenchmarkParser-12    	 1401558	       857.8 ns/op	       0 B/op	       0 allocs/op
+// BenchmarkParser-12    	 1391761	       860.9 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkParser(b *testing.B) {
 	p := initParser()
 	expression := "* * * * * * * * *"
