@@ -257,14 +257,14 @@ func Test_parser_parse(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(tp.Millisecond) != 0 {
-			t.Fatal("len of Millisecond must be 0")
+		if len(tp.Millisecond) != 24 {
+			t.Fatal("len of Millisecond must be 24")
 		}
-		if len(tp.Second) != 60 {
-			t.Fatal("len of Second must be 60")
+		if len(tp.Second) != 6 {
+			t.Fatal("len of Second must be 6")
 		}
-		if len(tp.Minute) != 12 {
-			t.Fatal("len of Minute must be 26")
+		if len(tp.Minute) != 17 {
+			t.Fatal("len of Minute must be 17")
 		}
 		if len(tp.Hour) != 0 {
 			t.Fatal("len of Hour must be 0")
@@ -278,11 +278,11 @@ func Test_parser_parse(t *testing.T) {
 		if len(tp.WeekOfMonth) != 0 {
 			t.Fatal("len of WeekOfMonth must be 0")
 		}
-		if len(tp.WeekOfYear) != 0 {
-			t.Fatal("len of WeekOfYear must be 0")
+		if len(tp.WeekOfYear) != 9 {
+			t.Fatal("len of WeekOfYear must be 9")
 		}
-		if len(tp.Month) != 0 {
-			t.Fatal("len of Month must be 0")
+		if len(tp.Month) != 3 {
+			t.Fatal("len of Month must be 3")
 		}
 	})
 }
