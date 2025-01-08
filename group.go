@@ -55,6 +55,12 @@ func (g *Group) AddJob(job ...*Job) *Group {
 	return g
 }
 
+// SetRepeatDuration set repeat duration
+func (g *Group) SetRepeatDuration(d time.Duration) *Group {
+	g.d = d
+	return g
+}
+
 // ResetJobs reset jobs
 func (g *Group) ResetJobs() *Group {
 	g.jobs = g.jobs[:0]
