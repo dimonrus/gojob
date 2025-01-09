@@ -81,3 +81,64 @@ func TestGroup_Panic(t *testing.T) {
 		}()
 	})
 }
+
+func TestMode(t *testing.T) {
+	t.Run("parallel", func(t *testing.T) {
+		g := NewGroup(time.Millisecond*500, GroupModeAllParallel)
+		ctx := context.WithValue(context.Background(), "logger", log.Default())
+		ctx, cancel := context.WithTimeout(ctx, time.Second*6)
+		defer cancel()
+		g.SetRepeatDuration(time.Second)
+
+		job1 := NewJob("job.parallel.1", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Second * 2)
+			t.Log("job.parallel.1 message")
+			panic("error")
+			return nil
+		}, time.Second)
+
+		job2 := NewJob("job.parallel.2", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Second * 2)
+			t.Log("job.parallel.2 message")
+			return nil
+		}, time.Second)
+
+		job3 := NewJob("job.parallel.3", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Second * 2)
+			t.Log("job.parallel.3 message")
+			return errors.New("some error")
+		}, time.Second)
+
+		g.AddJob(job1, job2, job3)
+		g.Schedule(ctx, RecoverMiddleware)
+	})
+	t.Run("parallel", func(t *testing.T) {
+		g := NewGroup(time.Millisecond*500, GroupModeConsistently)
+		ctx := context.WithValue(context.Background(), "logger", log.Default())
+		ctx, cancel := context.WithTimeout(ctx, time.Second*6)
+		defer cancel()
+		g.SetRepeatDuration(time.Second)
+
+		job1 := NewJob("job.parallel.1", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Second * 2)
+			t.Log("job.parallel.1 message")
+			panic("error")
+			return nil
+		}, time.Second)
+
+		job2 := NewJob("job.parallel.2", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Second * 2)
+			t.Log("job.parallel.2 message")
+			return nil
+		}, time.Second)
+
+		job3 := NewJob("job.parallel.3", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Second * 2)
+			t.Log("job.parallel.3 message")
+			return errors.New("some error")
+		}, time.Second)
+
+		g.AddJob(job1, job2, job3)
+		g.Schedule(ctx, RecoverMiddleware)
+	})
+}

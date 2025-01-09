@@ -14,23 +14,22 @@ func (c cTError) Text() string {
 	return string(c)
 }
 
-func TestSetRepeatDuration(t *testing.T) {
-	t.Run("default", func(t *testing.T) {
-		SetRepeatDuration(time.Second)
-		job1, _ := Add("test.hello.job", "- * * * * * * * *", func(ctx context.Context, args ...any) error {
-			panic("internal error")
-			return nil
-		})
-		job1.SetRepeatPeriod(time.Millisecond * 500)
-		job2, _ := Add("test.goodbye.job", "- * - - - - - - -", func(ctx context.Context, args ...any) error {
-			return nil
-		}, NewCondition(OperatorAND, func() bool {
-			return true
-		}))
-		job2.SetRepeatPeriod(time.Millisecond * 500)
-		Run(log.Default(), LogMiddleware, RecoverMiddleware)
-		time.Sleep(time.Second * 5)
+func TestRun(t *testing.T) {
+	SetRepeatDuration(time.Second)
+	Add("test.hello.job", "- * * * * * * * *", func(ctx context.Context, args ...any) error {
+		panic("internal error")
+		return nil
 	})
+	Add("test.goodbye.job", "- * - - - - - - -", func(ctx context.Context, args ...any) error {
+		return nil
+	}, NewCondition(OperatorAND, func() bool {
+		return true
+	}))
+	Run(log.Default(), LogMiddleware, RecoverMiddleware)
+	time.Sleep(time.Second * 5)
+}
+
+func TestSetRepeatDuration(t *testing.T) {
 	t.Run("error_parsing", func(t *testing.T) {
 		SetRepeatDuration(time.Second)
 		_, err := Add("test.parsing.error", "- //* - - - - - - -", func(ctx context.Context, args ...any) error {

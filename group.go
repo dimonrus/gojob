@@ -51,10 +51,20 @@ func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 		case <-ticker.C:
 			now := time.Now()
 			for _, job := range g.jobs {
-				e := job.RunAt(ctx, now)
-				if e != nil {
-					logger.Println(e.Error())
+				if g.parallel == GroupModeAllParallel {
+					go func(j *Job, x context.Context, l Logger, t time.Time) {
+						e := j.RunAt(x, t)
+						if e != nil {
+							l.Println(e.Error())
+						}
+					}(job, ctx, logger, now)
+				} else if g.parallel == GroupModeConsistently {
+					e := job.RunAt(ctx, now)
+					if e != nil {
+						logger.Println(e.Error())
+					}
 				}
+
 			}
 		case <-ctx.Done():
 			return
