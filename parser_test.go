@@ -86,7 +86,7 @@ func Test_parser_parse(t *testing.T) {
 		}
 	})
 	t.Run("only_numbers", func(t *testing.T) {
-		expression := "11 22 33 14 5 26 2 8 9"
+		expression := "11 22 33 14 5 26 2 8 9-12"
 		p := initParser()
 		err := p.parse(expression)
 		if err != nil {
@@ -121,8 +121,8 @@ func Test_parser_parse(t *testing.T) {
 		if len(tp.WeekOfYear) != 1 || tp.WeekOfYear[0] != 8 {
 			t.Fatal("len of WeekOfYear must be 1 and value 8")
 		}
-		if len(tp.Month) != 1 || tp.Month[0] != 9 {
-			t.Fatal("len of Month must be 1 and value 9")
+		if len(tp.Month) != 4 || tp.Month[0] != 9 {
+			t.Fatal("len of Month must be 4 and value 9")
 		}
 	})
 	t.Run("numbers_with_coma_stars_minus", func(t *testing.T) {

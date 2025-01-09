@@ -29,9 +29,6 @@ type parser struct {
 }
 
 var (
-	// for parser
-	parserBuf = initParser()
-
 	// format positions
 	positions = []int{
 		PositionStartMillisecond, PositionStartSecond, PositionStartMinute,

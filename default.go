@@ -2,27 +2,26 @@ package gojob
 
 import (
 	"context"
-	"log"
 	"time"
 )
 
 var (
-	group = initDefaultGroup()
-	ctx   = context.Background()
+	group      = initDefaultGroup()
+	defaultCtx = context.Background()
 )
 
 // SetRepeatDuration change repeat duration
-// Must be called before AddJob methods for sync repeatDuration between jobs
+// Must be called before Add methods for sync repeatDuration between jobs
 func SetRepeatDuration(d time.Duration) {
-	group.d = d
+	group.SetRepeatDuration(d)
 }
 
-// AddJob add job to default schedule
-func AddJob(name string, expression ScheduleExpression, callback JobCallback, condition ...Condition) error {
+// Add job to default schedule
+func Add(name string, expression ScheduleExpression, callback JobCallback, condition ...Condition) (*Job, error) {
 	job := NewJob(name, callback, group.d)
 	tp, err := expression.Parse()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	cond := tp.ToCondition()
 	if len(condition) > 0 {
@@ -30,22 +29,18 @@ func AddJob(name string, expression ScheduleExpression, callback JobCallback, co
 	}
 	job.SetCondition(cond)
 	group.AddJob(job)
-	return nil
+	return job, nil
 }
 
 // Run default schedule group
-func Run() {
-	ctx.Done()
-	ctx = context.Background()
-	runScheduler()
+func Run(logger Logger, middleware ...Middleware) {
+	defaultCtx.Done()
+	defaultCtx = context.Background()
+	defaultCtx = context.WithValue(defaultCtx, "logger", logger)
+	go group.Schedule(defaultCtx, middleware...)
 }
 
 // Init default schedule group
 func initDefaultGroup() *Group {
 	return NewGroup(time.Minute, GroupModeConsistently)
-}
-
-// run schedule
-func runScheduler() {
-	go group.Schedule(log.Default(), ctx)
 }

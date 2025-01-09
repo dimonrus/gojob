@@ -30,15 +30,28 @@ type Group struct {
 }
 
 // Schedule run periodical scheduler
-func (g *Group) Schedule(logger Logger, ctx context.Context) {
+func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 	ticker := time.NewTicker(g.d)
 	defer ticker.Stop()
+	l := ctx.Value("logger")
+	if l == nil {
+		panic("logger is not defined")
+	}
+	logger, ok := l.(Logger)
+	if !ok {
+		panic("logger must implement Logger interface")
+	}
+	for i := range g.jobs {
+		for _, middleware := range middlewares {
+			g.jobs[i].callback = middleware(g.jobs[i], g.jobs[i].callback)
+		}
+	}
 	for {
 		select {
 		case <-ticker.C:
 			now := time.Now()
 			for _, job := range g.jobs {
-				e := job.RunAt(now)
+				e := job.RunAt(ctx, now)
 				if e != nil {
 					logger.Println(e.Error())
 				}
@@ -49,7 +62,7 @@ func (g *Group) Schedule(logger Logger, ctx context.Context) {
 	}
 }
 
-// AddJob add jobs
+// Add add jobs
 func (g *Group) AddJob(job ...*Job) *Group {
 	g.jobs = append(g.jobs, job...)
 	return g

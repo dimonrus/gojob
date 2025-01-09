@@ -1,6 +1,7 @@
 package gojob
 
 import (
+	"context"
 	"time"
 )
 
@@ -8,7 +9,7 @@ import (
 type Jobs []*Job
 
 // JobCallback Main job callback
-type JobCallback func(args ...any) error
+type JobCallback func(ctx context.Context, args ...any) error
 
 // Job Simple executable schedule job
 type Job struct {
@@ -35,9 +36,20 @@ func (j *Job) isNextTime(t time.Time) bool {
 }
 
 // SetCondition set job condition
-func (j *Job) SetCondition(c Condition) {
+func (j *Job) SetCondition(c Condition) *Job {
 	j.condition = c
-	return
+	return j
+}
+
+// SetRepeatPeriod set job repeat ttl
+func (j *Job) SetRepeatPeriod(d time.Duration) *Job {
+	j.repeatPeriod = d
+	return j
+}
+
+// GetRepeatPeriod get job repeat ttl
+func (j *Job) GetRepeatPeriod() time.Duration {
+	return j.repeatPeriod
 }
 
 // SetSortOrder set sort order
@@ -65,21 +77,22 @@ func (j *Job) GetName() string {
 }
 
 // SetNextTime set next Time
-func (j *Job) SetNextTime(t time.Time) {
+func (j *Job) SetNextTime(t time.Time) *Job {
 	j.nextAttemptAt = t
+	return j
 }
 
 // Run job with params
-func (j *Job) Run(arg ...any) error {
-	return j.callback(arg...)
+func (j *Job) Run(ctx context.Context, arg ...any) (err error) {
+	return j.callback(ctx, arg...)
 }
 
 // RunAt run at specific time
-func (j *Job) RunAt(t time.Time, arg ...any) (err error) {
+func (j *Job) RunAt(ctx context.Context, t time.Time, arg ...any) (err error) {
 	if !j.CanStartAt(t) {
 		return
 	}
-	err = j.Run(arg...)
+	err = j.Run(ctx, arg...)
 	j.SetNextTime(t.Add(j.repeatPeriod))
 	return
 }

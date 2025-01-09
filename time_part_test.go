@@ -192,7 +192,7 @@ func TestTimePart_ToCondition(t *testing.T) {
 		t.Fatal(err)
 	}
 	tp := p.toTimePart()
-	job := NewJob("every.millisecond.with.500ms.repeat.duration", func(args ...any) error {
+	job := NewJob("every.millisecond.with.500ms.repeat.duration", func(ctx context.Context, args ...any) error {
 		t.Log(time.Now().Unix(), time.Now().UnixMilli()%1000)
 		return nil
 	}, time.Millisecond*500)
@@ -200,7 +200,7 @@ func TestTimePart_ToCondition(t *testing.T) {
 
 	g := NewGroup(time.Second, GroupModeConsistently)
 	g.AddJob(job)
-	logger := log.Default()
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*16)
-	g.Schedule(logger, ctx)
+	ctx = context.WithValue(ctx, "logger", log.Default())
+	g.Schedule(ctx)
 }
