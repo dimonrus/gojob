@@ -1,11 +1,12 @@
 ## Extended scheduler
 
-The library provides the ability to create periodic jobs using the advanced schedule format used in Unix-like systems. You can create groups of buildings that will be repeated with a certain periodicity according to the format described below<br><br>
+The library provides the ability to create periodic jobs using advanced schedule format Unix-like systems. 
+You can create groups of jobs that will be repeated with a certain periodicity
 
 <p align="center">
-    <a href="https://github.com/dimonrus/gojob/releases"><img src="https://img.shields.io/github/tag/dimonrus/gojob.svg?label=version&color=brightgreen"></a>
-    <a href="https://github.com/dimonrus/gojob/actions/workflows/go.yml"><img src="https://github.com/dimonrus/gojob/actions/workflows/go.yml/badge.svg"></a>
-    <a href="https://github.com/dimonrus/gojob/blob/master/LICENSE"><img src="https://img.shields.io/github/license/dimonrus/gojob"></a>
+   <a href="https://github.com/dimonrus/gojob/actions/workflows/go.yml"><img src="https://github.com/dimonrus/gojob/actions/workflows/go.yml/badge.svg"></a>
+   <a href="https://github.com/dimonrus/gojob/releases"><img src="https://img.shields.io/github/tag/dimonrus/gojob.svg?label=version&color=brightgreen"></a>
+   <a href="https://github.com/dimonrus/gojob/blob/master/LICENSE"><img src="https://img.shields.io/github/license/dimonrus/gojob"></a>
 </p>
 
 ### Example of usage
@@ -22,14 +23,13 @@ The library provides the ability to create periodic jobs using the advanced sche
     // Each job should have its own name for better understanding of the execution processes and investigation of event log entries
     gojob.Add("test.goodbye.job", "- * - - - - - - -", func(ctx context.Context, args ...any) error {
 		return nil
-	}, 
-	// You can add your own conditions to start a job. Conditions can be combined to create complex mechanics for starting jobs
-	NewCondition(OperatorAND, func() bool {
+	}, NewCondition(OperatorAND, func() bool {
+    // You can add your own conditions to start a job. Conditions can be combined to create complex mechanics for starting jobs
 		return true
 	}))
     // Once all jobs have been added, you should run the scheduler. 
 	// You can add your own middlewares to provide the necessary functionality when running jobs
-    gojob.Run(log.Default(), LogMiddleware, RecoverMiddleware)
+    gojob.Run(log.Default(), gojob.LogMiddleware, gojob.RecoverMiddleware)
 ```
 ### Schedule expression format
 
