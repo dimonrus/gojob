@@ -1,6 +1,6 @@
 ## Extended scheduler
 
-The library provides the ability to create periodic jobs using the advanced schedule format used in Unix-like systems. You can create groups of buildings that will be repeated with a certain periodicity according to the format described below
+The library provides the ability to create periodic jobs using the advanced schedule format used in Unix-like systems. You can create groups of buildings that will be repeated with a certain periodicity according to the format described below<br><br>
 ![GitHub](https://img.shields.io/github/license/dimonrus/gojob)
 
 ### Example of usage
