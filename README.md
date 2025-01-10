@@ -9,8 +9,6 @@ You can create groups of jobs that will be repeated with a certain periodicity
    <a href="https://github.com/dimonrus/gojob/blob/master/LICENSE"><img src="https://img.shields.io/github/license/dimonrus/gojob"></a>
 </p>
 
-![coverage](https://raw.githubusercontent.com/dimonrus/gojob/badges/.badges/main/coverage.svg)
-
 ### Example of usage
 ```go
     // Set required period for job schedule
