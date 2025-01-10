@@ -1,11 +1,13 @@
 ## Extended scheduler
 
 The library provides the ability to create periodic jobs using the advanced schedule format used in Unix-like systems. You can create groups of buildings that will be repeated with a certain periodicity according to the format described below<br><br>
+
 <p align="center">
     <a href="https://github.com/dimonrus/gojob/releases"><img src="https://img.shields.io/github/tag/dimonrus/gojob.svg?label=version&color=brightgreen"></a>
     <a href="https://github.com/dimonrus/gojob/actions/workflows/go.yml"><img src="https://github.com/dimonrus/gojob/actions/workflows/go.yml/badge.svg"></a>
     <a href="https://github.com/dimonrus/gojob/blob/master/LICENSE"><img src="https://img.shields.io/github/license/dimonrus/gojob"></a>
 </p>
+
 ### Example of usage
 ```go
     // Set required period for job schedule
