@@ -75,8 +75,11 @@ func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 	if g.parallel > 0 {
 		// define parallelData chan with g.parallel length
 		dataChan = make(chan parallelData, g.parallel)
-		// TODO close chan
-		// defer close(dataChan)
+		// sleep one iteration before close channel
+		defer func() {
+			time.Sleep(g.d)
+			close(dataChan)
+		}()
 		// make goroutines for parallel processing
 		for i := 0; i < int(g.parallel); i++ {
 			go func(x context.Context, dc chan parallelData, q <-chan struct{}) {
