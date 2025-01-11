@@ -36,7 +36,17 @@ var (
 		PositionStartWeekOfMonth, PositionStartWeekOfYear, PositionStartMonth,
 		TimePartLength,
 	}
+	// init once and copy values on reset
+	cleanBuf = initCleanBuf()
 )
+
+func initCleanBuf() []int16 {
+	buf := make([]int16, TimePartLength)
+	for i := range buf {
+		buf[i] = -1
+	}
+	return buf
+}
 
 // init parser on application start
 func initParser() parser {
@@ -47,9 +57,7 @@ func initParser() parser {
 
 // reset all parser buff values to -1
 func (p *parser) reset() {
-	for i := range p.buf {
-		p.buf[i] = -1
-	}
+	copy(p.buf, cleanBuf)
 }
 
 // transform parser buffer to time part struct

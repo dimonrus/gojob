@@ -292,10 +292,25 @@ func Test_parser_parse(t *testing.T) {
 // pkg: github.com/dimonrus/gojob
 // cpu: Apple M2 Max
 // BenchmarkParser
-// BenchmarkParser-12    	 1391761	       860.9 ns/op	       0 B/op	       0 allocs/op
+// BenchmarkParser-12    	 2432192	       483.3 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkParser(b *testing.B) {
 	p := initParser()
 	expression := "* * * * * * * * *"
+	for i := 0; i < b.N; i++ {
+		p.parse(expression)
+	}
+	b.ReportAllocs()
+}
+
+// goos: darwin
+// goarch: arm64
+// pkg: github.com/dimonrus/gojob
+// cpu: Apple M2 Max
+// BenchmarkParser2
+// BenchmarkParser2-12    	 3826430	       307.6 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkParser2(b *testing.B) {
+	p := initParser()
+	expression := "100-200 */5 */10,5,6-9 - * 1-10/2 * 1-5 1,2,6,10"
 	for i := 0; i < b.N; i++ {
 		p.parse(expression)
 	}
