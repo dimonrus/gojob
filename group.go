@@ -56,16 +56,16 @@ func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 		select {
 		case <-ticker.C:
 			now := time.Now()
-			for _, job := range g.jobs {
+			for i := range g.jobs {
 				if g.parallel == GroupModeAllParallel {
 					go func(j *Job, x context.Context, l Logger, t time.Time) {
 						e := j.RunAt(x, t)
 						if e != nil {
 							l.Println(e.Error())
 						}
-					}(job, ctx, logger, now)
+					}(g.jobs[i], ctx, logger, now)
 				} else if g.parallel == GroupModeConsistently {
-					e := job.RunAt(ctx, now)
+					e := g.jobs[i].RunAt(ctx, now)
 					if e != nil {
 						logger.Println(e.Error())
 					}
@@ -77,7 +77,7 @@ func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 						if e != nil {
 							l.Println(e.Error())
 						}
-					}(parallelChan, logger, job, ctx, now)
+					}(parallelChan, logger, g.jobs[i], ctx, now)
 				}
 			}
 		case <-ctx.Done():

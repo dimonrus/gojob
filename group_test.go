@@ -191,7 +191,6 @@ func TestMode(t *testing.T) {
 
 		job4 := NewJob("job.parallel.4", func(ctx context.Context, args ...any) error {
 			time.Sleep(jp)
-			printMemStat(t)
 			return nil
 		}, jrp)
 
