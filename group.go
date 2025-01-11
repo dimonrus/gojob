@@ -29,16 +29,23 @@ type Group struct {
 	parallel GroupMode
 }
 
-// Schedule run periodical scheduler
-func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
-	ticker := time.NewTicker(g.d)
-	defer ticker.Stop()
-	// init chan for case when N parallel job possible at the moment
-	var parallelChan chan struct{}
-	if g.parallel > 0 {
-		parallelChan = make(chan struct{}, g.parallel)
-		defer close(parallelChan)
+type parallelData struct {
+	logger Logger
+	job    *Job
+	t      time.Time
+}
+
+// apply middlewares to jobs
+func (g *Group) applyMiddleware(middlewares ...Middleware) {
+	for i := range g.jobs {
+		for _, middleware := range middlewares {
+			g.jobs[i].callback = middleware(g.jobs[i], g.jobs[i].callback)
+		}
 	}
+}
+
+// extract logger
+func (g *Group) getLoggerFromContext(ctx context.Context) Logger {
 	l := ctx.Value("logger")
 	if l == nil {
 		panic("logger is not defined")
@@ -47,42 +54,78 @@ func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 	if !ok {
 		panic("logger must implement Logger interface")
 	}
-	for i := range g.jobs {
-		for _, middleware := range middlewares {
-			g.jobs[i].callback = middleware(g.jobs[i], g.jobs[i].callback)
+	return logger
+}
+
+// Schedule run periodical scheduler
+func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
+	// init ticker with user repeat duration
+	ticker := time.NewTicker(g.d)
+	// when context done ticker must be stopped
+	defer ticker.Stop()
+	// apply middlewares to all job at current moment
+	g.applyMiddleware(middlewares...)
+	// extract logger from context
+	logger := g.getLoggerFromContext(ctx)
+	// init chan for case when N parallel job possible at the moment
+	var dataChan chan parallelData
+	// flag for stop all job
+	var exitChan = make(chan struct{})
+	// for parallel N define worker logic
+	if g.parallel > 0 {
+		// define parallelData chan with g.parallel length
+		dataChan = make(chan parallelData, g.parallel)
+		defer close(dataChan)
+		// make goroutines for parallel processing
+		for i := 0; i < int(g.parallel); i++ {
+			go func(x context.Context, dc chan parallelData, q <-chan struct{}) {
+				for {
+					select {
+					case d := <-dc:
+						// run job at provided time
+						e := d.job.RunAt(x, d.t)
+						if e != nil {
+							d.logger.Println(e.Error())
+						}
+					case <-q:
+						// close goroutine when context is done
+						return
+					}
+
+				}
+			}(ctx, dataChan, exitChan)
 		}
 	}
+	// common scheduler life cycle
 	for {
 		select {
 		case <-ticker.C:
 			now := time.Now()
 			for i := range g.jobs {
+				job := g.jobs[i]
 				if g.parallel == GroupModeAllParallel {
 					go func(j *Job, x context.Context, l Logger, t time.Time) {
 						e := j.RunAt(x, t)
 						if e != nil {
 							l.Println(e.Error())
 						}
-					}(g.jobs[i], ctx, logger, now)
+					}(job, ctx, logger, now)
 				} else if g.parallel == GroupModeConsistently {
-					e := g.jobs[i].RunAt(ctx, now)
+					e := job.RunAt(ctx, now)
 					if e != nil {
 						logger.Println(e.Error())
 					}
 				} else if g.parallel > 0 {
-					go func(pc chan struct{}, l Logger, j *Job, x context.Context, t time.Time) {
-						pc <- struct{}{}
-						defer func() { <-pc }()
-						e := j.RunAt(x, t)
-						if e != nil {
-							l.Println(e.Error())
-						}
-					}(parallelChan, logger, g.jobs[i], ctx, now)
+					dataChan <- parallelData{
+						logger: logger,
+						job:    job,
+						t:      now,
+					}
 				}
 			}
 		case <-ctx.Done():
-			for len(parallelChan) > 0 {
-			}
+			// quit from child goroutines
+			close(exitChan)
 			return
 		}
 	}
