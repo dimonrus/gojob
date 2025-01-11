@@ -34,8 +34,11 @@ func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 	ticker := time.NewTicker(g.d)
 	defer ticker.Stop()
 	// init chan for case when N parallel job possible at the moment
-	parallelChan := make(chan struct{}, g.parallel)
-	defer close(parallelChan)
+	var parallelChan chan struct{}
+	if g.parallel > 0 {
+		parallelChan = make(chan struct{}, g.parallel)
+		defer close(parallelChan)
+	}
 	l := ctx.Value("logger")
 	if l == nil {
 		panic("logger is not defined")

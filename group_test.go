@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -141,33 +142,74 @@ func TestMode(t *testing.T) {
 		g.AddJob(job1, job2, job3)
 		g.Schedule(ctx, RecoverMiddleware)
 	})
-	t.Run("parallel_N", func(t *testing.T) {
-		g := NewGroup(time.Millisecond*100, 3)
+	t.Run("parallel_N_error", func(t *testing.T) {
+		grp := time.Millisecond * 10
+		jrp := time.Millisecond * 500
+		jp := time.Millisecond * 1000
+		timeout := time.Second * 5
+		g := NewGroup(grp, 3)
 		ctx := context.WithValue(context.Background(), "logger", log.Default())
-		ctx, cancel := context.WithTimeout(ctx, time.Second*6)
+		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 
 		job1 := NewJob("job.parallel.1", func(ctx context.Context, args ...any) error {
-			time.Sleep(time.Millisecond * 100)
+			time.Sleep(jp)
+			return errors.New("some error")
+		}, jrp)
+
+		g.AddJob(job1)
+		g.Schedule(ctx)
+	})
+
+	t.Run("parallel_N", func(t *testing.T) {
+		grp := time.Millisecond * 10
+		jrp := time.Millisecond * 5
+		jp := time.Millisecond * 10
+		timeout := time.Second * 30
+
+		printMemStat(t)
+
+		g := NewGroup(grp, 3)
+		ctx := context.WithValue(context.Background(), "logger", log.Default())
+		ctx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+
+		job1 := NewJob("job.parallel.1", func(ctx context.Context, args ...any) error {
+			time.Sleep(jp)
 			return nil
-		}, time.Millisecond*50)
+		}, jrp)
 
 		job2 := NewJob("job.parallel.2", func(ctx context.Context, args ...any) error {
-			time.Sleep(time.Millisecond * 100)
+			time.Sleep(jp)
 			return nil
-		}, time.Millisecond*50)
+		}, jrp)
 
 		job3 := NewJob("job.parallel.3", func(ctx context.Context, args ...any) error {
-			time.Sleep(time.Millisecond * 100)
+			time.Sleep(jp)
 			return nil
-		}, time.Millisecond*50)
+		}, jrp)
 
 		job4 := NewJob("job.parallel.4", func(ctx context.Context, args ...any) error {
-			time.Sleep(time.Millisecond * 100)
+			time.Sleep(jp)
+			printMemStat(t)
 			return nil
-		}, time.Millisecond*50)
+		}, jrp)
 
 		g.AddJob(job1, job2, job3, job4)
-		g.Schedule(ctx, LogMiddleware)
+
+		printMemStat(t)
+
+		g.Schedule(ctx)
+
+		printMemStat(t)
 	})
+}
+
+func printMemStat(t *testing.T) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	t.Logf("\tAlloc = %v KB", m.Alloc/1024)
+	t.Logf("\tTotalAlloc = %v KB", m.TotalAlloc/1024)
+	t.Logf("\tSys = %v KB", m.Sys/1024)
+	t.Logf("\tNumGC = %v\n", m.NumGC)
 }
