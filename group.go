@@ -33,6 +33,9 @@ type Group struct {
 func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 	ticker := time.NewTicker(g.d)
 	defer ticker.Stop()
+	// init chan for case when N parallel job possible at the moment
+	parallelChan := make(chan struct{}, g.parallel)
+	defer close(parallelChan)
 	l := ctx.Value("logger")
 	if l == nil {
 		panic("logger is not defined")
@@ -63,16 +66,26 @@ func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 					if e != nil {
 						logger.Println(e.Error())
 					}
+				} else if g.parallel > 0 {
+					go func(pc chan struct{}, l Logger, j *Job, x context.Context, t time.Time) {
+						pc <- struct{}{}
+						defer func() { <-pc }()
+						e := j.RunAt(x, t)
+						if e != nil {
+							l.Println(e.Error())
+						}
+					}(parallelChan, logger, job, ctx, now)
 				}
-
 			}
 		case <-ctx.Done():
+			for len(parallelChan) > 0 {
+			}
 			return
 		}
 	}
 }
 
-// Add add jobs
+// AddJob add jobs
 func (g *Group) AddJob(job ...*Job) *Group {
 	g.jobs = append(g.jobs, job...)
 	return g

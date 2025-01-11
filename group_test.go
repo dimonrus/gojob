@@ -141,4 +141,33 @@ func TestMode(t *testing.T) {
 		g.AddJob(job1, job2, job3)
 		g.Schedule(ctx, RecoverMiddleware)
 	})
+	t.Run("parallel_N", func(t *testing.T) {
+		g := NewGroup(time.Millisecond*100, 3)
+		ctx := context.WithValue(context.Background(), "logger", log.Default())
+		ctx, cancel := context.WithTimeout(ctx, time.Second*6)
+		defer cancel()
+
+		job1 := NewJob("job.parallel.1", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Millisecond * 100)
+			return nil
+		}, time.Millisecond*50)
+
+		job2 := NewJob("job.parallel.2", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Millisecond * 100)
+			return nil
+		}, time.Millisecond*50)
+
+		job3 := NewJob("job.parallel.3", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Millisecond * 100)
+			return nil
+		}, time.Millisecond*50)
+
+		job4 := NewJob("job.parallel.4", func(ctx context.Context, args ...any) error {
+			time.Sleep(time.Millisecond * 100)
+			return nil
+		}, time.Millisecond*50)
+
+		g.AddJob(job1, job2, job3, job4)
+		g.Schedule(ctx, LogMiddleware)
+	})
 }
