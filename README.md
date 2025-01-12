@@ -5,7 +5,8 @@ You can create groups of jobs that will be repeated with a certain periodicity
 
 <p align="center">
    <a href="https://github.com/dimonrus/gojob/actions/workflows/go.yml"><img src="https://github.com/dimonrus/gojob/actions/workflows/go.yml/badge.svg"></a>
-   <a href="https://github.com/dimonrus/gojob/releases"><img src="https://img.shields.io/github/tag/dimonrus/gojob.svg?label=version&color=brightgreen"></a>
+   <a href="https://github.com/dimonrus/gojob/releases"><img src="https://img.shields.io/github/tag/dimonrus/gojob.svg?label=version&color=blue"></a>
+   <a href="https://goreportcard.com/report/github.com/dimonrus/gojob"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/dimonrus/gojob"></a>
    <a href="https://github.com/dimonrus/gojob/blob/master/LICENSE"><img src="https://img.shields.io/github/license/dimonrus/gojob"></a>
 </p>
 
