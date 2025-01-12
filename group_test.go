@@ -3,8 +3,11 @@ package gojob
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
+	"math/rand"
 	"runtime"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -211,4 +214,39 @@ func printMemStat(t *testing.T) {
 	t.Logf("\tTotalAlloc = %v KB", m.TotalAlloc/1024)
 	t.Logf("\tSys = %v KB", m.Sys/1024)
 	t.Logf("\tNumGC = %v\n", m.NumGC)
+}
+
+func TestPerformance(t *testing.T) {
+	grp := time.Millisecond
+	jrp := time.Millisecond
+	timeout := time.Second * 1
+
+	printMemStat(t)
+
+	g := NewGroup(grp, GroupModeConsistently)
+	ctx := context.WithValue(context.Background(), "logger", log.Default())
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	var jobs = make([]*Job, 0, 100)
+
+	var count int64
+
+	for i := 0; i < 10000; i++ {
+		job := NewJob(fmt.Sprintf("job.parallel.%v", i), func(ctx context.Context, args ...any) error {
+			atomic.AddInt64(&count, 1)
+			return nil
+		}, jrp)
+		job.SetCondition(NewCondition(OperatorAND, func() bool {
+			return rand.Float32() > 0.5
+		}))
+		jobs = append(jobs, job)
+	}
+	g.AddJob(jobs...)
+
+	g.Schedule(ctx)
+
+	t.Log(count)
+
+	printMemStat(t)
 }
