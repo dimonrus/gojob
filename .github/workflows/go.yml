@@ -32,3 +32,9 @@ jobs:
       with:
         config: .github/coverage.yaml
         badge-file-name: coverage.svg
+
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: coverage.svg
