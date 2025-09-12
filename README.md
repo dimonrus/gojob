@@ -65,6 +65,8 @@ You can specify many values using the standard syntax of Unix systems:
 2) **Repeat duration** - determines the time interval until the next call to check conditions and start jobs
 3) **Middleware** - define the preparatory steps before starting a jobs. These can be both logging and panic protection functions
 
+**By default** (`gojob.Add`) group set job.SetNextTime(time.Now()). If you want to run the first job immediately — leave the next time blank
+
 #### If you find this project useful or want to support the author, you can send tokens to any of these wallets
 - Bitcoin: bc1qgx5c3n7q26qv0tngculjz0g78u6mzavy2vg3tf
 - Ethereum: 0x62812cb089E0df31347ca32A1610019537bbFe0D

@@ -29,6 +29,21 @@ func TestRun(t *testing.T) {
 	time.Sleep(time.Second * 5)
 }
 
+func TestDifferentRepeats(t *testing.T) {
+	SetRepeatDuration(time.Second)
+	Add("test.hello.job", "- */10 - - - - - - -", func(ctx context.Context, args ...any) error {
+		panic("internal error")
+		return nil
+	})
+	Add("test.goodbye.job", "- * - - - - - - -", func(ctx context.Context, args ...any) error {
+		return nil
+	}, NewCondition(OperatorAND, func() bool {
+		return true
+	}))
+	Run(log.Default(), LogMiddleware, RecoverMiddleware)
+	time.Sleep(time.Second * 30)
+}
+
 func TestSetRepeatDuration(t *testing.T) {
 	t.Run("error_parsing", func(t *testing.T) {
 		SetRepeatDuration(time.Second)

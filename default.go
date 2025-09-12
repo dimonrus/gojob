@@ -28,6 +28,7 @@ func Add(name string, expression ScheduleExpression, callback JobCallback, condi
 		cond = cond.Merge(OperatorAND, condition...)
 	}
 	job.SetCondition(cond)
+	job.SetNextTime(time.Now())
 	group.AddJob(job)
 	return job, nil
 }
