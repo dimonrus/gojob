@@ -97,6 +97,38 @@ func (t TimePart) Validate() error {
 	return nil
 }
 
+// GetRepeatPeriod get repeat period
+func (t TimePart) GetRepeatPeriod() time.Duration {
+	if len(t.Millisecond) > 0 {
+		return time.Millisecond
+	}
+	if len(t.Second) > 0 {
+		return time.Second
+	}
+	if len(t.Minute) > 0 {
+		return time.Minute
+	}
+	if len(t.Hour) > 0 {
+		return time.Hour
+	}
+	if len(t.DayOfWeek) > 0 {
+		return time.Hour * 24
+	}
+	if len(t.DayOfMonth) > 0 {
+		return time.Hour * 24
+	}
+	if len(t.WeekOfMonth) > 0 {
+		return time.Hour * 24 * 7
+	}
+	if len(t.WeekOfYear) > 0 {
+		return time.Hour * 24 * 7
+	}
+	if len(t.Month) > 0 {
+		return time.Hour * 24 * 7
+	}
+	return time.Second
+}
+
 // ToCondition transform into condition
 func (t TimePart) ToCondition() Condition {
 	cond := NewCondition(OperatorAND)

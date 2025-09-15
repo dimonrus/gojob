@@ -3,6 +3,7 @@ package gojob
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -31,17 +32,18 @@ func TestRun(t *testing.T) {
 
 func TestDifferentRepeats(t *testing.T) {
 	SetRepeatDuration(time.Second)
-	Add("test.hello.job", "- */10 - - - - - - -", func(ctx context.Context, args ...any) error {
+	Add("test.hello.job", "- - * - - - - - -", func(ctx context.Context, args ...any) error {
 		panic("internal error")
 		return nil
 	})
-	Add("test.goodbye.job", "- * - - - - - - -", func(ctx context.Context, args ...any) error {
+	Add("test.each.second", "* - - - - - - - -", func(ctx context.Context, args ...any) error {
+		fmt.Println(time.Now().Second())
 		return nil
 	}, NewCondition(OperatorAND, func() bool {
 		return true
 	}))
 	Run(log.Default(), LogMiddleware, RecoverMiddleware)
-	time.Sleep(time.Second * 30)
+	time.Sleep(time.Second * 120)
 }
 
 func TestSetRepeatDuration(t *testing.T) {

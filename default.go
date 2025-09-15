@@ -29,6 +29,7 @@ func Add(name string, expression ScheduleExpression, callback JobCallback, condi
 	}
 	job.SetCondition(cond)
 	job.SetNextTime(time.Now())
+	job.SetRepeatPeriod(tp.GetRepeatPeriod())
 	group.AddJob(job)
 	return job, nil
 }
