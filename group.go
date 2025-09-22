@@ -135,6 +135,26 @@ func (g *Group) Schedule(ctx context.Context, middlewares ...Middleware) {
 	}
 }
 
+// SetJob set job
+func (g *Group) SetJob(job ...*Job) *Group {
+	for i := range job {
+		var found bool
+		for j := range g.jobs {
+			if job[i].name == g.jobs[j].name {
+				g.jobs[j] = job[i]
+				found = true
+			}
+			if found {
+				break
+			}
+		}
+		if !found {
+			g.jobs = append(g.jobs, job[i])
+		}
+	}
+	return g
+}
+
 // AddJob add jobs
 func (g *Group) AddJob(job ...*Job) *Group {
 	g.jobs = append(g.jobs, job...)

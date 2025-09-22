@@ -44,6 +44,15 @@ func TestGroup_Schedule(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*16)
 	defer cancel()
 	ctx = context.WithValue(ctx, "logger", log.Default())
+
+	go func() {
+		time.Sleep(time.Second * 7)
+		job1 = NewJob("test.group.job.1", func(ctx context.Context, args ...any) error {
+			t.Log("run test.group.job.1 changed: " + time.Now().Format(time.DateTime))
+			return nil
+		}, time.Second)
+		g.SetJob(job1)
+	}()
 	g.Schedule(ctx)
 
 	g.ResetJobs()
