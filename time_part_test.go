@@ -204,3 +204,153 @@ func TestTimePart_ToCondition(t *testing.T) {
 	ctx = context.WithValue(ctx, "logger", log.Default())
 	g.Schedule(ctx)
 }
+
+func TestTimePart_GetRepeatPeriod(t *testing.T) {
+	t.Run("mili", func(t *testing.T) {
+		exp := ScheduleExpression("* * * * * * * * *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Millisecond {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("sec", func(t *testing.T) {
+		exp := ScheduleExpression("- * * * * * * * *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Second {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("minute", func(t *testing.T) {
+		exp := ScheduleExpression("- - * * * * * * *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Minute {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("hour", func(t *testing.T) {
+		exp := ScheduleExpression("- - - * * * * * *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Hour {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("day of week", func(t *testing.T) {
+		exp := ScheduleExpression("- - - - * * * * *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Hour*24 {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("day of month", func(t *testing.T) {
+		exp := ScheduleExpression("- - - - - * * * *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Hour*24 {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("day of month", func(t *testing.T) {
+		exp := ScheduleExpression("- - - - - - * * *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Hour*24*7 {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("week of year", func(t *testing.T) {
+		exp := ScheduleExpression("- - - - - - - * *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Hour*24*7 {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("month", func(t *testing.T) {
+		exp := ScheduleExpression("- - - - - - - - *")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Hour*24*7 {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("default", func(t *testing.T) {
+		exp := ScheduleExpression("- - - - - - - - -")
+		err := exp.Validate()
+		if err != nil {
+			t.Fatal(err)
+		}
+		tp, err := exp.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tp.GetRepeatPeriod() != time.Second {
+			t.Fatal("wrong tp")
+		}
+	})
+	t.Run("parser error", func(t *testing.T) {
+		exp := ScheduleExpression("- - - - - */121212121212 - - -")
+		_, err := exp.Parse()
+		if err == nil {
+			t.Fatal("must be parse error")
+		}
+	})
+}
