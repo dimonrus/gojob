@@ -139,44 +139,44 @@ func (t TimePart) ToCondition() Condition {
 	}
 	if len(t.Second) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]int16, int16](t.Second, int16(time.Now().Second()))
+			return slices.Contains[[]int16, int16](t.Second, int16(time.Now().Second()&0xFF))
 		})
 	}
 	if len(t.Minute) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]int16, int16](t.Minute, int16(time.Now().Minute()))
+			return slices.Contains[[]int16, int16](t.Minute, int16(time.Now().Minute()&0xFF))
 		})
 	}
 	if len(t.Hour) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]int16, int16](t.Hour, int16(time.Now().Hour()))
+			return slices.Contains[[]int16, int16](t.Hour, int16(time.Now().Hour()&0xFF))
 		})
 	}
 	if len(t.DayOfWeek) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]int16, int16](t.DayOfWeek, int16(time.Now().Weekday()+1))
+			return slices.Contains[[]int16, int16](t.DayOfWeek, int16((time.Now().Weekday()+1)&0xFF))
 		})
 	}
 	if len(t.DayOfMonth) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]int16, int16](t.DayOfMonth, int16(time.Now().Day()))
+			return slices.Contains[[]int16, int16](t.DayOfMonth, int16(time.Now().Day()&0xFF))
 		})
 	}
 	if len(t.WeekOfMonth) > 0 {
 		cond = cond.AddExpression(func() bool {
 			day := time.Now().Day()
-			return slices.Contains[[]int16, int16](t.WeekOfMonth, int16(day)/7+1)
+			return slices.Contains[[]int16, int16](t.WeekOfMonth, int16((day/7+1)&0xFF))
 		})
 	}
 	if len(t.WeekOfYear) > 0 {
 		cond = cond.AddExpression(func() bool {
 			_, week := time.Now().ISOWeek()
-			return slices.Contains[[]int16, int16](t.WeekOfYear, int16(week))
+			return slices.Contains[[]int16, int16](t.WeekOfYear, int16(week&0xFF))
 		})
 	}
 	if len(t.Month) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]int16, int16](t.Month, int16(time.Now().Month()))
+			return slices.Contains[[]int16, int16](t.Month, int16(time.Now().Month()&0xFF))
 		})
 	}
 	return cond
