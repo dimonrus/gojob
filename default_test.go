@@ -43,7 +43,7 @@ func TestDifferentRepeats(t *testing.T) {
 		return true
 	}))
 	Run(log.Default(), LogMiddleware, RecoverMiddleware)
-	time.Sleep(time.Second * 120)
+	time.Sleep(time.Second * 30)
 }
 
 func TestSetRepeatDuration(t *testing.T) {

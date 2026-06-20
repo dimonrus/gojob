@@ -154,7 +154,7 @@ func (t TimePart) ToCondition() Condition {
 	}
 	if len(t.DayOfWeek) > 0 {
 		cond = cond.AddExpression(func() bool {
-			return slices.Contains[[]int16, int16](t.DayOfWeek, int16((time.Now().Weekday()+1)&0xFF))
+			return slices.Contains[[]int16, int16](t.DayOfWeek, int16(time.Now().Weekday())&0xFF)
 		})
 	}
 	if len(t.DayOfMonth) > 0 {
